@@ -1,0 +1,81 @@
+const path = require("path");
+const HappyPack = require('happypack');
+const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
+
+module.exports = {
+    entry: {
+        index: "./src/index.tsx",
+    },
+    output: {
+        filename: "[name].js",
+        path: path.resolve("./dist"),
+    },
+    resolve: {
+        extensions: [ ".ts", ".tsx", ".js" ],
+        plugins: [ new TsconfigPathsPlugin({ configFile: "tsconfig.json", baseUrl: "src" }) ],
+        modules: [
+            path.resolve("./src"),
+            path.resolve("./node_modules"),
+        ],
+    },
+    module: {
+        rules: [
+            {
+                test: /\.tsx?$/,
+                use: [
+                    { loader: "happypack/loader?id=ts"},
+                ],
+            }
+        ],
+    },
+    plugins: [
+        new HappyPack({
+            id: 'ts',
+            threads: 1,
+            loaders: [
+                {
+                    loader: 'ts-loader',
+                    options: {
+                        happyPackMode: true,
+                        transpileOnly: true,
+                    }
+                },
+                {
+                    loader: "babel-loader",
+                    options: {
+                        presets: [
+                            ['@babel/preset-env'],
+                        ],
+                        plugins: [
+                            "@babel/plugin-external-helpers"
+                        ],
+                        env: {
+                            // Minificar en caso de que se encuentre en producción.
+                            // Se require DEBUG=false (o NODE_ENV=production?)
+                            production: {
+                                presets: ['minify'],
+                            }
+                        }
+                    }
+                }
+            ],
+        }),
+    ],
+    externals: {
+        "immutable": "Immutable",
+        "classnames": "classNames",
+        "react": "React",
+        "react-dom": "ReactDOM",
+        "redux": "Redux",
+        "redux-thunk": "ReduxThunk",
+        "react-router": "ReactRouter",
+        "react-redux": "ReactRedux",
+        "react-router-dom": "ReactRouterDOM",
+        "semantic-ui-react": "semanticUIReact",
+        "axios": "axios",
+        "moment": "moment",
+        "react-day-picker": "DayPicker",
+        "react-day-picker/DayPickerInput": "DayPicker.Input",
+        "chartist": "Chartist",
+    }
+};
